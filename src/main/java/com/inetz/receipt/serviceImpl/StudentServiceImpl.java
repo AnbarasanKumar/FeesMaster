@@ -66,8 +66,14 @@ public class StudentServiceImpl implements StudentService {
         student.setModifiedBy(modifiedBy);
 
         FeeStructure fee = student.getFeeStructure();
+        if (fee == null) {
+            fee = new FeeStructure();
+            fee.setStudent(student);
+            student.setFeeStructure(fee);
+        }
         fee.setTotalFees(request.getTotalFees());
-        fee.setPendingAmount(fee.getTotalFees() - fee.getPaidAmount());
+        fee.setPaidAmount(request.getPaidAmount());
+        fee.setPendingAmount(Math.max(0, fee.getTotalFees() - fee.getPaidAmount()));
 
         return studentRepository.save(student);
     }
@@ -110,15 +116,18 @@ public class StudentServiceImpl implements StudentService {
         StudentDetailsResponse response =
                 modelMapper.map(student, StudentDetailsResponse.class);
 
-        response.setTotalFees(fee.getTotalFees());
-        response.setPaidAmount(fee.getPaidAmount());
-        response.setPendingAmount(fee.getPendingAmount());
-
-        response.setReceipts(
-                fee.getPayments().stream()
-                        .map(p -> modelMapper.map(p, ReceiptDetailsResponse.class))
-                        .toList()
-        );
+        if (fee != null) {
+            response.setTotalFees(fee.getTotalFees());
+            response.setPaidAmount(fee.getPaidAmount());
+            response.setPendingAmount(fee.getPendingAmount());
+            if (fee.getPayments() != null) {
+                response.setReceipts(
+                        fee.getPayments().stream()
+                                .map(p -> modelMapper.map(p, ReceiptDetailsResponse.class))
+                                .toList()
+                );
+            }
+        }
 
         return response;
     }
