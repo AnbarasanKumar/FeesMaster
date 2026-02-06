@@ -40,23 +40,6 @@ public class FeeController {
         );
     }
 
-    /*
-    // =============================
-    // MAKE PAYMENT
-    // =============================
-    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
-    @PostMapping("/payment")
-    public ApiResponse<FeePayment> makePayment(
-            @RequestBody FeePaymentRequest request) {
-
-        return new ApiResponse<>(
-                "Payment successful",
-                feeService.makePayment(request),
-                true
-        );
-    }
-    */
-
     // =============================
     // GET FEE DETAILS
     // =============================
