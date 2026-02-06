@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.inetz.receipt.entity.FeePayment;
 import com.inetz.receipt.entity.FeeStructure;
 import com.inetz.receipt.entity.Student;
+import com.inetz.receipt.model.FeePaymentRequest;
 import com.inetz.receipt.model.FeeStructureRequest;
 import com.inetz.receipt.repositroy.FeePaymentRepository;
 import com.inetz.receipt.repositroy.FeeStructureRepository;
@@ -59,12 +60,13 @@ public class FeeServiceImpl implements FeeService {
     
 
     @Override
-    public FeePayment payFees(Long studentId, Double amount, String createdBy) {
+    public FeePayment payFees(FeePaymentRequest request, String createdBy) {
 
-        // 🔒 LOCK ROW (FOR UPDATE)
         FeeStructure feeStructure = feeStructureRepository
-                .findByStudentIdForUpdate(studentId)
+                .findByStudentIdForUpdate(request.getStudentId())
                 .orElseThrow(() -> new RuntimeException("Fee structure not found"));
+
+        double amount = request.getAmount();
 
         if (amount <= 0) {
             throw new IllegalArgumentException("Amount must be greater than zero");
@@ -74,7 +76,7 @@ public class FeeServiceImpl implements FeeService {
             throw new IllegalArgumentException("Payment exceeds pending amount");
         }
 
-        // 💰 UPDATE AMOUNTS
+        // update totals
         feeStructure.setPaidAmount(
                 feeStructure.getPaidAmount() + amount
         );
@@ -83,14 +85,18 @@ public class FeeServiceImpl implements FeeService {
                 feeStructure.getTotalFees() - feeStructure.getPaidAmount()
         );
 
-        // 💾 SAVE UPDATED FEES
         feeStructureRepository.save(feeStructure);
 
-        // 🧾 CREATE PAYMENT RECORD
         FeePayment payment = new FeePayment();
         payment.setFeeStructure(feeStructure);
         payment.setAmount(amount);
-        payment.setPaymentDate(LocalDate.now());
+        payment.setPaymentMode(request.getPaymentMode());  
+        payment.setRemarks(request.getRemarks());          
+        payment.setPaymentDate(
+                request.getPaymentDate() != null
+                        ? request.getPaymentDate()
+                        : LocalDate.now()
+        );
         payment.setCreatedBy(createdBy);
 
         return feePaymentRepository.save(payment);

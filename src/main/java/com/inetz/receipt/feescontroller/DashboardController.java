@@ -26,13 +26,4 @@ public class DashboardController {
                 true
         );
     }
-
-    @GetMapping("/total")
-    public ApiResponse<DashboardResponse> getTotalDashboard() {
-        return new ApiResponse<>(
-                "Total dashboard fetched successfully",
-                dashboardService.getOverallDashboard(),
-                true
-        );
-    }
 }

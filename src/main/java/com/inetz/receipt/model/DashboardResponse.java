@@ -13,4 +13,6 @@ public class DashboardResponse {
     private double totalAmount;
     private double totalPaidAmount;
     private double totalPendingAmount;
+    private double totalGpayAmount;
+    private double totalCashAmount;
 }

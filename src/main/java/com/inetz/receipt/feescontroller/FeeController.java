@@ -3,6 +3,7 @@ package com.inetz.receipt.feescontroller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.inetz.receipt.entity.FeePayment;
 import com.inetz.receipt.entity.FeeStructure;
+import com.inetz.receipt.model.FeePaymentRequest;
 import com.inetz.receipt.model.FeeStructureRequest;
 import com.inetz.receipt.response.ApiResponse;
 import com.inetz.receipt.service.FeeService;
@@ -55,13 +58,17 @@ public class FeeController {
     }
     
     @PostMapping("/pay")
-    public ResponseEntity<?> payFees(
-            @RequestParam Long studentId,
-            @RequestParam Double amount,
-            @RequestParam String createdBy) {
+    public ApiResponse<FeePayment> payFees(
+            @RequestBody FeePaymentRequest request,
+            Authentication authentication) {
 
-        return ResponseEntity.ok(
-                feeService.payFees(studentId, amount, createdBy)
+        String createdBy = authentication.getName();
+
+        return new ApiResponse<>(
+                "Fee paid successfully",
+                feeService.payFees(request, createdBy),
+                true
         );
     }
+
 }

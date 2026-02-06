@@ -28,4 +28,18 @@ public interface FeePaymentRepository extends JpaRepository<FeePayment, Long> {
         ORDER BY p.paymentDate DESC, p.paymentId DESC
     """)
     List<FeePayment> findRecentReceipts(Pageable pageable);
+    
+    @Query("""
+            SELECT COALESCE(SUM(p.amount), 0)
+            FROM FeePayment p
+            WHERE UPPER(p.paymentMode) = 'GPAY'
+        """)
+        double getTotalGpayAmount();
+
+        @Query("""
+            SELECT COALESCE(SUM(p.amount), 0)
+            FROM FeePayment p
+            WHERE UPPER(p.paymentMode) = 'CASH'
+        """)
+        double getTotalCashAmount();
 }

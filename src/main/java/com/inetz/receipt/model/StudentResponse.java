@@ -1,5 +1,6 @@
 package com.inetz.receipt.model;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ public class StudentResponse {
     private String phoneNumber;
     private String courseType;
     private String courseDomain;
-    private LocalDateTime batchJoinDate;
+    private LocalDate batchJoinDate;   
     private LocalDateTime createdAt;
 }
+
