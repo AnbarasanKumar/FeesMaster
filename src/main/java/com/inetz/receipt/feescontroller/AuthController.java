@@ -1,5 +1,7 @@
 package com.inetz.receipt.feescontroller;
 
+import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +30,8 @@ public class AuthController {
     private UserService userService;
 
     @PostMapping("/login")
-    public ApiResponse<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ApiResponse<AuthResponse> login(
+            @Valid @RequestBody LoginRequest request) {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -57,7 +60,7 @@ public class AuthController {
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PostMapping("/register")
     public ApiResponse<Void> register(
-            @RequestBody AuthRequest request,
+            @Valid @RequestBody AuthRequest request,
             Authentication authentication) {
 
         String creatorRole = authentication.getAuthorities()

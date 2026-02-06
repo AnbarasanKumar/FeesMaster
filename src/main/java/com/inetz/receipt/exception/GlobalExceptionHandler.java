@@ -3,11 +3,18 @@ package com.inetz.receipt.exception;
 import java.util.HashMap;
 import java.util.Map;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.ConstraintViolationException;
+
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -36,6 +43,45 @@ public class GlobalExceptionHandler {
         );
     }
 
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<ApiResponse<String>> handleConstraintViolation(
+            ConstraintViolationException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>(
+                        ex.getMessage(),
+                        null,
+                        false
+                )
+        );
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<ApiResponse<String>> handleInvalidJson(
+            HttpMessageNotReadableException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>(
+                        "Invalid request body or malformed JSON",
+                        null,
+                        false
+                )
+        );
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<ApiResponse<String>> handleTypeMismatch(
+            MethodArgumentTypeMismatchException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>(
+                        "Invalid value for parameter: " + ex.getName(),
+                        null,
+                        false
+                )
+        );
+    }
+
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ApiResponse<String>> handleBadCredentials(
             BadCredentialsException ex) {
@@ -43,6 +89,19 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 new ApiResponse<>(
                         "Invalid username or password",
+                        null,
+                        false
+                )
+        );
+    }
+
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiResponse<String>> handleAuthenticationException(
+            AuthenticationException ex) {
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+                new ApiResponse<>(
+                        "Authentication failed",
                         null,
                         false
                 )
@@ -62,11 +121,11 @@ public class GlobalExceptionHandler {
         );
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ApiResponse<String>> handleRuntimeException(
-            RuntimeException ex) {
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleEntityNotFound(
+            EntityNotFoundException ex) {
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                 new ApiResponse<>(
                         ex.getMessage(),
                         null,
@@ -75,9 +134,32 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // =========================
-    // GENERIC EXCEPTION
-    // =========================
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity<ApiResponse<String>> handleDataIntegrityViolation(
+            DataIntegrityViolationException ex) {
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                new ApiResponse<>(
+                        "Database constraint violation",
+                        null,
+                        false
+                )
+        );
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ApiResponse<String>> handleRuntimeException(
+            RuntimeException ex) {
+
+        return ResponseEntity.badRequest().body(
+                new ApiResponse<>(
+                        ex.getMessage(),
+                        null,
+                        false
+                )
+        );
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleException(
             Exception ex) {

@@ -1,5 +1,6 @@
 package com.inetz.receipt.feescontroller;
 
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -23,7 +24,7 @@ public class StudentController {
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     @PostMapping
     public ApiResponse<StudentResponse> createStudent(
-            @RequestBody StudentRequest request,
+            @Valid @RequestBody StudentRequest request,
             Authentication authentication) {
 
         String createdBy = authentication.getName();
@@ -39,7 +40,7 @@ public class StudentController {
     @PutMapping("/{id}")
     public ApiResponse<StudentResponse> updateStudent(
             @PathVariable Long id,
-            @RequestBody StudentUpdateRequest request) {
+            @Valid @RequestBody StudentUpdateRequest request) {
 
         return new ApiResponse<>(
                 "Student updated successfully",
@@ -82,4 +83,3 @@ public class StudentController {
         );
     }
 }
-
