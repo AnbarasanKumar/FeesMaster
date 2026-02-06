@@ -29,9 +29,6 @@ public class FeeServiceImpl implements FeeService {
     @Autowired
     private FeePaymentRepository feePaymentRepository;
 
-    // ================================
-    // CREATE FEE STRUCTURE
-    // ================================
     @Override
     public FeeStructure createFeeStructure(FeeStructureRequest request) {
 
@@ -76,7 +73,6 @@ public class FeeServiceImpl implements FeeService {
             throw new IllegalArgumentException("Payment exceeds pending amount");
         }
 
-        // update totals
         feeStructure.setPaidAmount(
                 feeStructure.getPaidAmount() + amount
         );

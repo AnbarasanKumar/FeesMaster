@@ -18,7 +18,6 @@ public interface FeeStructureRepository extends JpaRepository<FeeStructure, Long
     """)
     Optional<FeeStructure> findByStudentIdForUpdate(Long studentId);
 
-    // 👀 NORMAL READ METHOD
     Optional<FeeStructure> findByStudentStudentId(Long studentId);
 
 

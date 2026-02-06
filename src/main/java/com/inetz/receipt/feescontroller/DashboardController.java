@@ -21,7 +21,7 @@ public class DashboardController {
     @GetMapping("/overall")
     public ApiResponse<DashboardResponse> getOverallDashboard() {
         return new ApiResponse<>(
-                "Overall dashboard fetched successfully",
+                "Super Admin dashboard fetched successfully",
                 dashboardService.getOverallDashboard(),
                 true
         );

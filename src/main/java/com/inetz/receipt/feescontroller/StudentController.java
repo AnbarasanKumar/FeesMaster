@@ -20,9 +20,6 @@ public class StudentController {
     @Autowired
     private StudentService studentService;
 
-    // ==========================
-    // CREATE STUDENT
-    // ==========================
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     @PostMapping
     public ApiResponse<StudentResponse> createStudent(
@@ -38,9 +35,6 @@ public class StudentController {
         );
     }
 
-    // ==========================
-    // UPDATE STUDENT
-    // ==========================
     @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
     @PutMapping("/{id}")
     public ApiResponse<StudentResponse> updateStudent(
@@ -54,9 +48,6 @@ public class StudentController {
         );
     }
 
-    // ==========================
-    // GET STUDENT BY ID
-    // ==========================
     @GetMapping("/{id}")
     public ApiResponse<StudentResponse> getStudent(
             @PathVariable Long id) {
@@ -68,9 +59,6 @@ public class StudentController {
         );
     }
 
-    // ==========================
-    // GET ALL STUDENTS
-    // ==========================
     @GetMapping
     public ApiResponse<List<StudentResponse>> getAllStudents() {
 
@@ -81,9 +69,6 @@ public class StudentController {
         );
     }
 
-    // ==========================
-    // DELETE STUDENT
-    // ==========================
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteStudent(@PathVariable Long id) {
