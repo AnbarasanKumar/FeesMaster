@@ -1,0 +1,84 @@
+package com.inetz.receipt.feescontroller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.inetz.receipt.entity.FeeStructure;
+import com.inetz.receipt.model.FeeStructureRequest;
+import com.inetz.receipt.response.ApiResponse;
+import com.inetz.receipt.service.FeeService;
+
+@RestController
+@RequestMapping("/api/fees")
+@CrossOrigin("*")
+public class FeeController {
+
+    @Autowired
+    private FeeService feeService;
+
+    // =============================
+    // CREATE FEE STRUCTURE
+    // =============================
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
+    @PostMapping("/structure")
+    public ApiResponse<FeeStructure> createFeeStructure(
+            @RequestBody FeeStructureRequest request) {
+
+        return new ApiResponse<>(
+                "Fee structure created successfully",
+                feeService.createFeeStructure(request),
+                true
+        );
+    }
+
+    /*
+    // =============================
+    // MAKE PAYMENT
+    // =============================
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN','ADMIN')")
+    @PostMapping("/payment")
+    public ApiResponse<FeePayment> makePayment(
+            @RequestBody FeePaymentRequest request) {
+
+        return new ApiResponse<>(
+                "Payment successful",
+                feeService.makePayment(request),
+                true
+        );
+    }
+    */
+
+    // =============================
+    // GET FEE DETAILS
+    // =============================
+    @GetMapping("/structure/{studentId}")
+    public ApiResponse<FeeStructure> getFeeDetails(
+            @PathVariable Long studentId) {
+
+        return new ApiResponse<>(
+                "Fee details fetched successfully",
+                feeService.getFeeStructureByStudent(studentId),
+                true
+        );
+    }
+    
+    @PostMapping("/pay")
+    public ResponseEntity<?> payFees(
+            @RequestParam Long studentId,
+            @RequestParam Double amount,
+            @RequestParam String createdBy) {
+
+        return ResponseEntity.ok(
+                feeService.payFees(studentId, amount, createdBy)
+        );
+    }
+}

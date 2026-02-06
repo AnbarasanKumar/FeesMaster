@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "fee_payment")
@@ -20,6 +21,7 @@ public class FeePayment {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "fee_structure_id")
+    @JsonIgnore
     private FeeStructure feeStructure;
 
     private double amount;

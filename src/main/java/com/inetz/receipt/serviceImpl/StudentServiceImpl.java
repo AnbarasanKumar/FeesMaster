@@ -1,134 +1,78 @@
 package com.inetz.receipt.serviceImpl;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-
-import java.time.LocalDate;
-import com.inetz.receipt.entity.*;
+import com.inetz.receipt.entity.Student;
 import com.inetz.receipt.model.*;
-import com.inetz.receipt.repositroy.FeeStructureRepository;
 import com.inetz.receipt.repositroy.StudentRepository;
 import com.inetz.receipt.service.StudentService;
 
-import lombok.RequiredArgsConstructor;
-
 @Service
-@RequiredArgsConstructor
+@Transactional
 public class StudentServiceImpl implements StudentService {
 
-    private final StudentRepository studentRepository;
-    private final FeeStructureRepository feeStructureRepository;
-    private final ModelMapper modelMapper;
+    @Autowired
+    private StudentRepository studentRepository;
+
+    @Autowired
+    private ModelMapper modelMapper;
 
     @Override
-    public Student createStudent(StudentRequest request, String createdBy) {
+    public StudentResponse createStudent(StudentRequest request, String createdBy) {
 
-        Student student = modelMapper.map(request, Student.class);
+        Student student =
+                modelMapper.map(request, Student.class);
+
         student.setCreatedBy(createdBy);
 
-        FeeStructure fee = new FeeStructure();
-        fee.setStudent(student);
-        fee.setTotalFees(request.getTotalFees());
-        fee.setPaidAmount(request.getPaidAmount());
-        fee.setPendingAmount(
-                request.getTotalFees() - request.getPaidAmount()
-        );
+        Student savedStudent = studentRepository.save(student);
 
-        student.setFeeStructure(fee);
-
-        return studentRepository.save(student);
+        return modelMapper.map(savedStudent, StudentResponse.class);
     }
 
     @Override
-    public Page<Student> getAllStudents(int page, int size) {
-        return studentRepository.findAll(PageRequest.of(page, size));
-    }
+    public StudentResponse updateStudent(Long studentId, StudentUpdateRequest request) {
 
-    @Override
-    public Student getStudentById(Long id) {
-        return studentRepository.findById(id)
+        Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
+
+        modelMapper.map(request, student); 
+
+        Student updatedStudent = studentRepository.save(student);
+
+        return modelMapper.map(updatedStudent, StudentResponse.class);
     }
 
     @Override
-    public Student updateStudent(Long id, StudentRequest request, String modifiedBy) {
+    public StudentResponse getStudentById(Long studentId) {
 
-        Student student = getStudentById(id);
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        student.setStudentName(request.getStudentName());
-        student.setPhoneNumber(request.getPhoneNumber());
-        student.setCourseType(request.getCourseType());
-        student.setCourseDomain(request.getCourseDomain());
-        student.setBatchJoinDate(request.getBatchJoinDate());
-        student.setModifiedBy(modifiedBy);
-
-        FeeStructure fee = student.getFeeStructure();
-        if (fee == null) {
-            fee = new FeeStructure();
-            fee.setStudent(student);
-            student.setFeeStructure(fee);
-        }
-        fee.setTotalFees(request.getTotalFees());
-        fee.setPaidAmount(request.getPaidAmount());
-        fee.setPendingAmount(Math.max(0, fee.getTotalFees() - fee.getPaidAmount()));
-
-        return studentRepository.save(student);
+        return modelMapper.map(student, StudentResponse.class);
     }
 
     @Override
-    public void deleteStudent(Long id) {
-        studentRepository.deleteById(id);
+    public List<StudentResponse> getAllStudents() {
+
+        return studentRepository.findAll()
+                .stream()
+                .map(student -> modelMapper.map(student, StudentResponse.class))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public long getTotalStudents() {
-        return studentRepository.count();
-    }
+    public void deleteStudent(Long studentId) {
 
-    @Override
-    public long getTodayRegisteredStudents() {
-        LocalDate today = LocalDate.now();
-        return studentRepository.countStudentsRegisteredToday(
-                today.atStartOfDay(),
-                today.atTime(23, 59, 59)
-        );
-    }
+        Student student = studentRepository.findById(studentId)
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-    @Override
-    public Page<StudentDetailsResponse> getAllStudentsWithReceipts(int page, int size) {
-
-        return studentRepository.findAll(PageRequest.of(page, size))
-                .map(this::mapStudentDetails);
-    }
-
-    @Override
-    public StudentDetailsResponse getStudentWithReceipts(Long id) {
-        return mapStudentDetails(getStudentById(id));
-    }
-
-    private StudentDetailsResponse mapStudentDetails(Student student) {
-
-        FeeStructure fee = student.getFeeStructure();
-
-        StudentDetailsResponse response =
-                modelMapper.map(student, StudentDetailsResponse.class);
-
-        if (fee != null) {
-            response.setTotalFees(fee.getTotalFees());
-            response.setPaidAmount(fee.getPaidAmount());
-            response.setPendingAmount(fee.getPendingAmount());
-            if (fee.getPayments() != null) {
-                response.setReceipts(
-                        fee.getPayments().stream()
-                                .map(p -> modelMapper.map(p, ReceiptDetailsResponse.class))
-                                .toList()
-                );
-            }
-        }
-
-        return response;
+        studentRepository.delete(student);
     }
 }

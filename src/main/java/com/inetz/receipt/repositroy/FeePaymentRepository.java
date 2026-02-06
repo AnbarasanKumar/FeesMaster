@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.time.*;
 import java.util.*;
-import org.springframework.data.repository.query.Param;
 import com.inetz.receipt.entity.*;
 import org.springframework.data.domain.Pageable;
 
