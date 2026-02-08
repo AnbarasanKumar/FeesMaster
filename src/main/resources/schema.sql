@@ -1,11 +1,11 @@
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(100) NOT NULL UNIQUE,
     password VARCHAR(255) NOT NULL,
     role VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE student (
+CREATE TABLE IF NOT EXISTS student (
     student_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     student_name VARCHAR(150) NOT NULL,
     phone_number BIGINT NOT NULL,
@@ -19,8 +19,7 @@ CREATE TABLE student (
     modified_by VARCHAR(100)
 );
 
-
-CREATE TABLE fee_structure (
+CREATE TABLE IF NOT EXISTS fee_structure (
     fee_structure_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     student_id BIGINT UNIQUE,
 
@@ -34,8 +33,7 @@ CREATE TABLE fee_structure (
         ON DELETE CASCADE
 );
 
-
-CREATE TABLE fee_payment (
+CREATE TABLE IF NOT EXISTS fee_payment (
     payment_id BIGINT PRIMARY KEY AUTO_INCREMENT,
     fee_structure_id BIGINT NOT NULL,
 
